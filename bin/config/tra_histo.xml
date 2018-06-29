@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<Task name="PhiHistogram" type="PhiHistogram" config="" nodePath="PhiHistogram"  />
+	<sys>pp</sys>
+	<mod>DNN_N6</mod>
+	<name></name>
+
+	<p>
+		<nSigmaDeltaY>2</nSigmaDeltaY>
+		<nSigmaDeltaZ>2</nSigmaDeltaZ>
+		<DeltaTOF>0.5</DeltaTOF>
+	</p>
+	
+	<PhiHistogram>
+		<EventLoop progress="true" />
+		
+		<input>
+			<dst treeName="PairDst" url="{DIMUON_ROOT}/data/PairDst/pair_dst_{sys}_{mod}.root"  maxFiles="-1" />
+		</input>
+
+		<output>
+			<TFile url="phi-{sys}-{mod}-histograms{name}.root" />
+		</output>
+
+		<histograms>
+			<Histo name="uls" title=";M_{#mu#mu} (GeV/c^{2}); dN/dM (GeV/c^{2})^{-1}" bins_x="bins.mass" bins_y="bins.pt" />
+			<Histo name="ls" title=";M_{#mu#mu} (GeV/c^{2}); dN/dM (GeV/c^{2})^{-1}" bins_x="bins.mass" bins_y="bins.pt" />
+		</histograms>
+	</PhiHistogram>
+
+
+	<bins>
+		<mass min="0.2" max="2.5" width="0.005" />
+		<pt min="0" max="15.0" width="0.005" />
+	</bins>
+
+
+</config>

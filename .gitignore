@@ -1,0 +1,8 @@
+.sconsign.dblite
+*.o
+*.root
+*.pdf
+*.png
+*.app
+.DS_Store
+bin/compare-pid.root.xml

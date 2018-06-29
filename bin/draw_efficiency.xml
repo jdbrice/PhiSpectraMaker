@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<Data name="d" url="efficiency-phi.root" />
+
+	<TCanvas w="1200" h="900" />
+	<Margins>0.05, 0.05, 0.15, 0.15</Margins>
+
+
+
+	<Loop var="num" states="mtdr, mtd, rc, mc">
+		<Loop var="den" states="gen, mc, rc, mtd" >
+			<Transform>
+				<Divide save_as="{num}_over_{den}_pt" nameA="{num}_pt" nameB="{den}_pt" />
+			</Transform>
+		</Loop>
+	</Loop>
+
+	<Transform>
+		<Rebin save_as="mtdr_pt_rb" name="mtdr_pt" bins_x="pt-sig" />
+		<Rebin save_as="gen_pt_rb" name="gen_pt" bins_x="pt-sig" />
+
+		<Divide save_as="mtdr_over_gen_pt_rb" nameA="mtdr_pt_rb" nameB="gen_pt_rb" />
+	</Transform>
+
+	<Plot>
+		<Histo name="gen_pt" draw="" logy="1" min="1" lc="#000" lw="2" optstat="0" title="" y-title="d^{2}N / 2#pi dp_{T} p_{T} dy (GeV/c^{2})^{-1}" />
+		<Histo name="mc_pt" draw="same h" lc="#F00" lw="2" />
+		<Histo name="rc_pt" draw="same h" lc="#006600" lw="2" />
+		<Histo name="mtd_pt" draw="same h" lc="#00F" lw="2" />
+		<Histo name="mtdr_pt" draw="same h" lc="#F0F" lw="2" />
+
+		<Legend >
+			<Position pos="top right" />
+			<Entry name="gen_pt" title="Generator" />
+			<Entry name="mc_pt" title="|#eta^{#mu}|<0.5, p_{T}^{#mu}>1.1(GeV/c)" />
+			<Entry name="rc_pt" title="+TPC Reco" />
+			<Entry name="mtd_pt" title="+MTD Matched" />
+			<Entry name="mtdr_pt" title="+MTD Response" />
+		</Legend>
+
+		<Export url="simu-pt.pdf" />
+
+	</Plot>
+
+
+	<Plot>
+		<Histo name="gen_eta" draw="" logy="1" min="1" xr="-1, 1" max="1e12" lc="#000" lw="2" optstat="0" title="" y-title="dN / d#eta" />
+		<Histo name="mc_eta" draw="same h" lc="#F00" lw="2" />
+		<Histo name="rc_eta" draw="same h" lc="#006600" lw="2" />
+		<Histo name="mtd_eta" draw="same h" lc="#00F" lw="2" />
+		<Histo name="mtdr_eta" draw="same h" lc="#F0F" lw="2" />
+
+		<Legend >
+			<Position pos="top right" />
+			<Entry name="gen_eta" title="Generator" />
+			<Entry name="mc_eta" title="|#eta^{#mu}|<0.5, p_{T}^{#mu}>1.1(GeV/c)" />
+			<Entry name="rc_eta" title="+TPC Reco" />
+			<Entry name="mtd_eta" title="+MTD Matched" />
+			<Entry name="mtdr_eta" title="+MTD Response" />
+		</Legend>
+
+		<Export url="simu-eta.pdf" />
+
+	</Plot>
+
+	<Plot>
+		<Histo name="gen_phi" draw="" logy="1" min="1" lc="#000" lw="2" optstat="0" title="" y-title="dN / d#phi" />
+		<Histo name="mc_phi" draw="same h" lc="#F00" lw="2" />
+		<Histo name="rc_phi" draw="same h" lc="#006600" lw="2" />
+		<Histo name="mtd_phi" draw="same h" lc="#00F" lw="2" />
+		<Histo name="mtdr_phi" draw="same h" lc="#F0F" lw="2" />
+
+		<Legend border-size="0">
+			<Position pos="top left" padding="0.05, 0.0, 0.0, 0.1"/>
+			<Entry name="gen_phi" title="Generator" />
+			<Entry name="mc_phi" title="|#eta^{#mu}|<0.5, p_{T}^{#mu}>1.1(GeV/c)" />
+			<Entry name="rc_phi" title="+TPC Reco" />
+			<Entry name="mtd_phi" title="+MTD Matched" />
+			<Entry name="mtdr_phi" title="+MTD Response" />
+		</Legend>
+
+		<Export url="simu-phi.pdf" />
+
+	</Plot>
+
+
+
+	<Plot>
+
+		<Histo name="rc_over_mc_pt" draw="h" logy="1" min="1e-4" max="2" lc="#00F" title="" y-title="Efficiency" />
+		<Histo name="mc_over_gen_pt" draw="same h" lc="#000"  />
+ 		<Histo name="mtd_over_rc_pt" draw="same h" lc="#F00" />
+		<Histo name="mtdr_over_mtd_pt" draw="same h" lc="#500" />
+
+		<Histo name="mtdr_over_gen_pt" draw="same h" lc="#005500" />
+		<Histo name="mtdr_over_gen_pt_rb" draw="same h" lc="#005500" />
+		
+
+		<TLine x="0, 10" y="1, 1" color="#000" />
+		<TLatex text="Toy MonteCarlo: #phi (|y|<0.5)" x="0.4" y="0.96" font="42" point="16"/>
+
+		<Legend border-size="0">
+			<Position pos="bottom right" h="0.3" padding="0, 0.05, 0.05, 0"/>
+
+			<Entry name="mc_over_gen_pt" title="#splitline{ Kinematic Acceptance }{ |#eta^{#mu}|<0.5, p_{T}^{#mu}>1.1(GeV/c) }"  />
+			<Entry name="rc_over_mc_pt" title="TPC reco / MC"  />
+			<Entry name="mtd_over_rc_pt" title="MTD Match / TPC reco"  />
+			<Entry name="mtdr_over_mtd_pt" title="#varepsilon MTD Response"  />
+			<Entry name="mtdr_over_gen_pt" title="Total Efficiency #times Acceptance"  />
+
+		</Legend>
+
+		<Export url="eff-pt.pdf" />
+	</Plot>
+
+
+	<pt-sig>2.2, 3, 3.5, 4, 6</pt-sig>
+
+</config>

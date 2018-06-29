@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<Task name="PhiMvaHistogram" type="PhiMvaHistogram" config="" nodePath="PhiMvaHistogram"  />
+	<sys>pp</sys>
+	<mod>DNN_N6</mod>
+	<name>DNN136</name>
+
+	<p>
+		<pid>1.36</pid>
+		<y>pt</y>
+	</p>
+	
+	<PhiMvaHistogram>
+		<EventLoop progress="true" />
+		
+		<input>
+			<dst treeName="PairDst" url="{DIMUON_ROOT}/data/PairDst/pair_dst_{sys}_{mod}.root"  maxFiles="-1" />
+		</input>
+
+		<output>
+			<TFile url="phi-{sys}-{mod}-histograms-{name}.root" />
+		</output>
+
+		<histograms>
+			<Histo name="uls" title=";M_{#mu#mu} (GeV/c^{2}); dN/dM (GeV/c^{2})^{-1}" bins_x="bins.mass" bins_y="bins.pt" />
+			<Histo name="ls" title=";M_{#mu#mu} (GeV/c^{2}); dN/dM (GeV/c^{2})^{-1}" bins_x="bins.mass" bins_y="bins.pt" />
+		</histograms>
+	</PhiMvaHistogram>
+
+
+	<bins>
+		<mass min="0.2" max="2.5" width="0.005" />
+		<pt min="0" max="15.0" width="0.001" />
+	</bins>
+
+
+</config>
