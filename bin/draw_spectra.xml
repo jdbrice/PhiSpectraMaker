@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<Data name="d" url="systematics/total_ratio_systematics.root" />
+
+	<TCanvas w="1600" h="900" />
+	<Margins>0.03, 0.03, 0.14, 0.14</Margins>
+	<Plot>
+		<Histo name="hTBWSys" draw="E3" logy="1" optstat="0" color="#000000, 0.3" marker-size="0" y-title="BR #times #frac{d^{2}N}{dp_{T}dyp_{T} } #frac{1}{2#pi N_{events} }"/>
+		<Histo name="hYieldStat" draw="same pe" logy="1"/>
+		<Histo name="hYieldSys" draw="same pE2" color="#FF0000, 0.3"/>
+
+		<Legend border-size="0">
+			<Position pos="top right" w="0.5" h="0.3" padding="0.01, 0.01, 0, 0" />
+			<Entry name="hYieldStat" title="Statistical Uncertainties" opt="pe" />
+			<Entry name="hYieldSys" title="Systematic Uncertainties" opt="f" />
+			<Entry name="hTBWSys" title="Tsallis Blast Wave(TBW)" opt="pe"/>
+			<Entry name="hTBWSys" title="TBW dN/dy Uncertainty" opt="f"/>
+			
+		</Legend>
+
+		<Export url="spectra.pdf" />
+	</Plot>
+
+
+	<Plot>
+		<Axes lsx="0, 8, 10" lsy="0, 2, 10" optstat="0" logy="0" x-title="p_{T} (GeV/c)" y-title="Yield Ratio"  xtp="18" ytp="18" xlp="16" ylp="16"/>
+
+		<!-- <Rect pos="7.5, 0.8, 7.9, 1.2" draw="same" color="#000, 0.5" /> -->
+		<TLine p1="0, 1" p2="8, 1" color="#000" style="2" />
+		<Histo name="hYieldStatRatio" draw="same pe" />
+		<Histo name="hYieldSysRatio" draw="same pE2" color="#F00, 0.3" />
+
+		<Histo name="hTBWRatioSysSide" draw="same E2" color="#000, 0.3" />
+
+		<Legend border-size="0">
+			<Position pos="top right" w="0.4" h="0.2" padding="0.01, 0.01, 0, 0"/>
+			<Entry name="hYieldStatRatio" title="Statistical Uncertainty" opt="pe" />
+			<Entry name="hYieldSysRatio" title="Systematic Uncertainty" opt="f" />
+			<Entry name="hTBWRatioSysSide" title="dN/dy Uncertainty" opt="f" />
+		</Legend>
+
+		<Export url="spectra_ratio.pdf" />
+	</Plot>
+
+</config>

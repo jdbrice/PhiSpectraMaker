@@ -18,8 +18,10 @@
 	<Transform>
 		<Rebin save_as="mtdr_pt_rb" name="mtdr_pt" bins_x="pt-sig" />
 		<Rebin save_as="gen_pt_rb" name="gen_pt" bins_x="pt-sig" />
+		<Rebin save_as="mc_pt_rb" name="mc_pt" bins_x="pt-sig" />
 
 		<Divide save_as="mtdr_over_gen_pt_rb" nameA="mtdr_pt_rb" nameB="gen_pt_rb" />
+		<Divide save_as="mtdr_over_mc_pt_rb" nameA="mtdr_pt_rb" nameB="mc_pt_rb" />
 	</Transform>
 
 	<Plot>
@@ -88,12 +90,12 @@
 	<Plot>
 
 		<Histo name="rc_over_mc_pt" draw="h" logy="1" min="1e-4" max="2" lw="2" lc="#00F" title="" y-title="Efficiency" x-title="p_{T}^{#phi} (GeV/c)"/>
-		<Histo name="mc_over_gen_pt" draw="same h" lw="2" lc="#000"  />
+		<!-- <Histo name="mc_over_gen_pt" draw="same h" lw="2" lc="#000"  /> -->
  		<Histo name="mtd_over_rc_pt" draw="same h" lw="2" lc="#F00" />
 		<Histo name="mtdr_over_mtd_pt" draw="same h" lw="2" lc="#500" />
 
-		<Histo name="mtdr_over_gen_pt" draw="same h" lw="2" lc="#005500" />
-		<Histo name="mtdr_over_gen_pt_rb" draw="same h" lw="2" lc="#005500" />
+		<Histo name="mtdr_over_mc_pt" draw="same h" lw="2" lc="#005500" />
+		<Histo name="mtdr_over_mc_pt_rb" draw="same h" lw="2" lc="#005500" />
 		
 
 		<TLine x="0, 10" y="1, 1" color="#000" />
@@ -110,10 +112,10 @@
 
 		</Legend>
 
-		<Export url="eff-pt.pdf" />
+		<Export url="wo-acc-eff-pt.pdf" />
 	</Plot>
 
 
-	<pt-sig>2.2, 3, 3.5, 4, 6, 10</pt-sig>
+	<pt-sig>2.2, 10</pt-sig>
 
 </config>

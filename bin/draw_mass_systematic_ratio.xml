@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<sys>pp</sys>
+
+	<TCanvas w="1200" h="900" />
+	<Margins>0.04, 0.04, 0.15, 0.11</Margins>
+
+
+	<Data name="nominal" url="systematics/nominal-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="pol3" url="systematics/pol3-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="pol5" url="systematics/pol5-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="pol6" url="systematics/pol6-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="frwide" url="systematics/frwide-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="frnarrow" url="systematics/frnarrow-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="eshiftplus15p" url="systematics/eshiftplus15p-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<Data name="eshiftminus15p" url="systematics/eshiftminus15p-phi-fit-{sys}-DNN_N6-DNN136.root" />
+	<!-- Wont exist first time through -->
+	<!-- <Data name="totals" url="systematics/total_mass_ratio_systematics.root" /> -->
+
+	<TFile url="ratio_mass_systematics.root" />
+
+	<sets>pol3, pol5, pol6, frwide, frnarrow, eshiftplus15p, eshiftminus15p</sets>
+	<Loop var="s" states="{sets}">
+		<Transform>
+			<Divide save_as="ratio_{s}" nameA="{s}/mass" nameB="nominal/mass" />
+		</Transform>
+	</Loop>
+
+	<Plot>
+		<Axes lsx="2.0, 10, 8" lsy="0.995, 1.005, 10" optstat="0" x-title="p_{T}^{#phi} (GeV/c)" y-title="Mass / Nominal" xtp="22" ytp="22" xlp="16" ylp="16" yto="0.8"/>
+		
+		<Histo name="ratio_pol3" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#233541"/>
+		<Histo name="ratio_pol5" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#5F6C74"/>
+		<Histo name="ratio_pol6" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#0000FF" />
+		<Histo name="ratio_frwide" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#33658A" />
+		<Histo name="ratio_frnarrow" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#F6AE2D" />
+		<Histo name="ratio_eshiftplus15p" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#F8C466" />
+		<Histo name="ratio_eshiftminus15p" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#F26419" />
+		<!-- <Histo name="totals/total_ratio" draw="same p hist" marker-size="4" color="#000" /> -->
+
+		<TLine p1="2, 1" p2="7, 1" color="#000" wisth="2"/>
+
+		<Legend>
+			<Position pos="top right" w="0.3" h="0.8"/>
+			<Entry name="ratio_pol3" title="BG Shape: pol3" opt="pl" />
+			<Entry name="ratio_pol5" title="BG Shape: pol5" opt="pl" />
+			<Entry name="ratio_pol6" title="BG Shape: pol6" opt="pl" />
+			<Entry name="ratio_frwide" title="Fit Range: wide" opt="pl" />
+			<Entry name="ratio_frnarrow" title="Fit Range: Narrow" opt="pl" />
+			<Entry name="ratio_eshiftplus15p" title="Efficiency High" opt="pl" />
+			<Entry name="ratio_eshiftminus15p" title="Efficiency Low" opt="pl" />
+			<Entry name="totals/total_ratio" title="Total (Positive)" opt="pl" />
+		</Legend>
+
+
+		<Export url="plot_mass_systematic_ratio.pdf" />
+
+	</Plot>
+
+
+	<Plot>
+		<Axes lsx="2.0, 10, 8" lsy="1.0, 1.05, 10" optstat="0" x-title="p_{T}^{#phi} (GeV/c)" y-title="Mass / Nominal" xtp="22" ytp="22" xlp="16" ylp="16" yto="0.8"/>
+		
+		<Histo name="pol3/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#233541"/>
+		<Histo name="pol5/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#5F6C74"/>
+		<Histo name="pol6/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#0000FF" />
+		<Histo name="frwide/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#33658A" />
+		<Histo name="frnarrow/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#F6AE2D" />
+		<Histo name="eshiftplus15p/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#F8C466" />
+		<Histo name="eshiftminus15p/mass" draw="same p hist" marker-size="2" marker-style="8" line-width="2" color="#F26419" />
+		<!-- <Histo name="totals/total_ratio" draw="same p hist" marker-size="4" color="#000" /> -->
+
+		<TLine p1="2, 1" p2="7, 1" color="#000" wisth="2"/>
+
+		<Legend>
+			<Position pos="top right" w="0.3" h="0.8"/>
+			<Entry name="pol3/mass" title="BG Shape: pol3" opt="pl" />
+			<Entry name="pol5/mass" title="BG Shape: pol5" opt="pl" />
+			<Entry name="pol6/mass" title="BG Shape: pol6" opt="pl" />
+			<Entry name="frwide/mass" title="Fit Range: wide" opt="pl" />
+			<Entry name="frnarrow/mass" title="Fit Range: Narrow" opt="pl" />
+			<Entry name="eshiftplus15p/mass" title="Efficiency High" opt="pl" />
+			<Entry name="eshiftminus15p/mass" title="Efficiency Low" opt="pl" />
+			<Entry name="totals/total_ratio" title="Total (Positive)" opt="pl" />
+		</Legend>
+
+
+		<Export url="plot_mass_systematic_raw.pdf" />
+
+	</Plot>
+
+
+</config>

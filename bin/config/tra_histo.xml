@@ -3,7 +3,7 @@
 	<Task name="PhiHistogram" type="PhiHistogram" config="" nodePath="PhiHistogram"  />
 	<sys>pp</sys>
 	<mod>DNN_N6</mod>
-	<name></name>
+	<name>-tra</name>
 
 	<p>
 		<nSigmaDeltaY>2</nSigmaDeltaY>

@@ -28,6 +28,7 @@ protected:
 	int npol;
 
 	XmlHistogram xhMtdR, xhGen, xhTBW;
+	TF1 * fitfunction = nullptr;
 	
 public:
 
@@ -37,8 +38,9 @@ public:
 	virtual void initialize(){
 		HistoAnalyzer::initialize();
 
-		npol = 6;
-		phi_fpol = new TF1( "phi_fpol", "pol6" );
+		npol = config.get<int>( "p.bgNPol", 4 );
+		LOG_F( INFO, "Background: pol%d", npol );
+		phi_fpol = new TF1( "phi_fpol", TString::Format( "pol%d", npol ) );
 		phi_fg1 = new TF1( "phi_fg1", "gaus" );
 		phi_fg2 = new TF1( "phi_fg2", "gaus" );
 
@@ -97,7 +99,8 @@ public:
 										sigMassBins.bins.data() 
 									);
 
-		hmassrb->Scale( 1.0, "width" );
+		// hmassrb->Scale( 1.0, "width" );
+		double bw = hmassrb->GetBinWidth( 1 );
 
 		TH1 * hmassrbls = hmassls->Rebin( 
 										sigMassBins.nBins(), 
@@ -105,17 +108,13 @@ public:
 										sigMassBins.bins.data() 
 									);
 
-		hmassrbls->Scale( 1.0, "width" );
+		// hmassrbls->Scale( 1.0, "width" );
 
 
 		if ( config.get<bool>( "p.rmls", false ) == true ){
 			hmassrb->Add( hmassrbls, -1 );
 		}
 
-		TF1 * f = new TF1( "phif", phi_evaluate, 2, 5, 3 + npol );
-		rpl.style( f ).set( config, "style.fit" );
-		f->SetLineColor(kBlack);
-		
 		float mu = 1.013;
 		if ( "omega" == resoStr ){
 			mu = 0.78;
@@ -123,20 +122,35 @@ public:
 			mu = 0.47;
 		}
 
+		TF1 * f = nullptr;
+		if ( nullptr == fitfunction ){
+			fitfunction = new TF1( "phif", phi_evaluate, 2, 5, 3 + npol );
+			fitfunction->SetParameters( 610, mu, 0.015, 1, -1, -1, 3, 2, -1 );
+
+			fitfunction->SetNpx( 500 );
+
+			// fitfunction->SetParLimits( 0, 0, 1e9 );
+			fitfunction->SetParLimits( 1, mu - 0.1, mu + 0.1);
+			fitfunction->SetParLimits( 2, 0.001, 0.06 );
+		}
+
+		f = fitfunction;
+		 // new TF1( "phif", phi_evaluate, 2, 5, 3 + npol );
+		rpl.style( f ).set( config, "style.fit" );
+		f->SetLineColor(kBlack);
+		
+		
+
 		// f->SetParameters( 1.2e5, -1.2e5, -1.2e4, 3.7e4, 2.5e4, -1.9e4, 610, mu, 0.015 );
 		// f->SetParameters( 1, -1, -1, 3, 2, -1, 610, mu, 0.015 );
-		f->SetParameters( 610, mu, 0.015, 1, -1, -1, 3, 2, -1 );
+		
 
-		f->SetNpx( 500 );
-
-		f->SetParLimits( 0, 0, 1e9 );
-		f->SetParLimits( 1, mu - 0.1, mu + 0.1);
-		f->SetParLimits( 2, 0.001, 0.06 );
+		
 
 		
 		
-		float fmin = 0.85;
-		float fmax = 1.5;
+		float fmin = config.get<float>("p.fitRange:min", 0.85);
+		float fmax = config.get<float>("p.fitRange:max", 1.5);;
 
 		if ( "omega" == resoStr ){
 			fmin = 0.55;
@@ -159,7 +173,7 @@ public:
 		
 		float fmu  = f->GetParameter( 1 );
 		float fsig = f->GetParameter( 2 );
-		double Nse = f->IntegralError( fmu - 3*fsig, fmu + 3*fsig ) ;
+		double Nse = f->IntegralError( fmu - 5*fsig, fmu + 5*fsig ) / bw ;
 		if ( 0.0f == Nse ){
 			hmassrb->Fit( f, "QR", "", fmin, fmax );
 			hmassrb->Fit( f, "R", "", fmin, fmax );
@@ -168,7 +182,7 @@ public:
 
 		fmu  = f->GetParameter( 1 );
 		fsig = f->GetParameter( 2 );
-		Nse = f->IntegralError( fmu - 3*fsig, fmu + 3*fsig ) ;
+		Nse = f->IntegralError( fmu - 3*fsig, fmu + 3*fsig ) / bw;
 
 
 		float chi2 = f->GetChisquare();
@@ -214,11 +228,11 @@ public:
 		
 
 		// float bw = hmassrb->GetBinWidth( 5 );
-		double Ns = f->Integral( fmu - 3*fsig, fmu + 3*fsig ) ;
-		double Nbg = phi_fpol->Integral( fmu - 3*fsig, fmu + 3*fsig ) ;
+		double Ns = f->Integral( fmu - 3*fsig, fmu + 3*fsig ) / bw;
+		double Nbg = phi_fpol->Integral( fmu - 3*fsig, fmu + 3*fsig ) / bw;
 
 		
-		double Nbge = phi_fpol->IntegralError( fmu - 3*fsig, fmu + 3*fsig ) ;
+		double Nbge = phi_fpol->IntegralError( fmu - 3*fsig, fmu + 3*fsig ) / bw;
 
 		// Ns *= 1.0/ hmassrb->GetBinWidth(4);
 		// Nbg *= 1.0/ hmassrb->GetBinWidth(4);
@@ -228,7 +242,7 @@ public:
 
 
 		Ns = Ns - Nbg;
-		Nse = Nse + Nbge;
+		Nse = Nse;
 
 		double SoBe = (Ns/Nbg) * sqrt( pow( sqrt(Ns) / Ns,2) + pow( sqrt(Nbg) / Nbg, 2 ) );
 
@@ -246,9 +260,9 @@ public:
 		
 		lx.DrawLatexNDC( .42, 0.90, "Run15 p+p at #sqrt{s}=200 GeV" );
 		
-		lx.DrawLatexNDC( .42, 0.85, TString::Format("N_{#phi}^{raw}=%0.3f #pm %0.3f #pm %0.3f", Ns, sqrt(Ns), Nse) );
-		lx.DrawLatexNDC( .42, 0.80, TString::Format("mass=%0.3f #pm %0.2e (GeV/c^{2})", f->GetParameter(1), f->GetParError(1)) );
-		lx.DrawLatexNDC( .42, 0.75, TString::Format("width=%0.3f #pm %0.2e (GeV/c^{2})", f->GetParameter(2), f->GetParError(2)) );
+		lx.DrawLatexNDC( .42, 0.85, TString::Format("N_{#phi}^{raw}=%0.3f #pm %0.3f", Ns, Nse) );
+		lx.DrawLatexNDC( .42, 0.80, TString::Format("mass=%0.3f #pm %0.3f GeV/c^{2}", f->GetParameter(1), f->GetParError(1)) );
+		lx.DrawLatexNDC( .42, 0.75, TString::Format("width=%0.3f #pm %0.3f GeV/c^{2}", f->GetParameter(2), f->GetParError(2)) );
 		lx.DrawLatexNDC( .42, 0.70, TString::Format("S/B=%0.3f", Ns/Nbg) );
 		lx.DrawLatexNDC( .42, 0.65, TString::Format("S/#sqrt{S + B}=%0.3f", sig) );
 
@@ -258,12 +272,12 @@ public:
 
 		// lx.DrawLatexNDC( .18, 0.40, TString::Format("p0=%0.3f #pm %0.2e", f->GetParameter(6), f->GetParError(6) ) );
 		
-		lx.DrawLatexNDC( .23, 0.30, "|y^{#mu#mu}|<0.5" );
-		lx.DrawLatexNDC( .23, 0.25, "|#eta^{#mu}|<0.5 && p^{#mu}_{T} > 1.1 GeV/c" );
-		lx.DrawLatexNDC( .23, 0.2, TString::Format( "%s", title ) );
+		lx.DrawLatexNDC( .23, 0.28, "|y^{#mu#mu}|<0.5" );
+		lx.DrawLatexNDC( .23, 0.23, "|#eta^{#mu}|<0.5 && p^{#mu}_{T} > 1.1 GeV/c" );
+		lx.DrawLatexNDC( .23, 0.18, TString::Format( "%s", title ) );
 
 		if ( config.get<bool>("p.showSlice") ){
-			lx.DrawLatexNDC( .23, 0.2, TString::Format("%0.2f < %s < %0.2f %s", pt1, config.get<string>("p.y-title", "p_{T}^{#mu#mu}").c_str(), pt2, config.get<string>("p.y-units", "(GeV/c)").c_str() ) );
+			lx.DrawLatexNDC( .23, 0.18, TString::Format("%0.2f < %s < %0.2f %s", pt1, config.get<string>("p.y-title", "p_{T}^{#mu#mu}").c_str(), pt2, config.get<string>("p.y-units", "GeV/c").c_str() ) );
 		}
 
 		TLegend *leg = new TLegend( 0.23, 0.35, 0.5, 0.55 );
@@ -272,7 +286,8 @@ public:
 		leg->AddEntry( hmassrb, "Data", "lpe" );
 		leg->AddEntry( phi_fg1, "Signal" );
 		leg->AddEntry( phi_fpol, "Background" );
-		leg->Draw("same");
+		if ( config.get<bool>( "p.showLegend", true ) )
+			leg->Draw("same");
 
 		rp.savePage();
 
@@ -340,6 +355,10 @@ public:
 	}
 
 	virtual void postMake(){
+
+		TNamed n ( "config", "" );
+		n.SetTitle( config.toXml().c_str() );
+		n.Write();
 		
 		Reporter rp( config.get<string>(nodePath + ".output.YieldSummary:url"), 1600, 800 );
 		rp.margins( 0.03, 0.05, 0.15, 0.15 );
@@ -401,6 +420,10 @@ public:
 			float v = cyield->GetBinContent( i );
 			float e = cyield->GetBinError( i );
 			float eff = hrbEffAcc->GetBinContent( hrbEffAcc->GetXaxis()->FindBin( cyield->GetBinCenter( i ) ) );
+
+			float relEffShift = config.get<float>( "p.RelativeEffShift", 1.0 );
+			eff *= relEffShift;
+
 			LOG_F( INFO, "eff = %f at %f", eff, cyield->GetBinCenter( i ) );
 			cyield->SetBinContent( i, v / eff );
 			cyield->SetBinError( i, (e / eff) );
@@ -414,7 +437,7 @@ public:
 		
 		// hTBW->SetMinimum( 1e-1 );
 		rpl.style( hTBW ).set( config, "style.TBW" ).draw();
-
+		hTBW->Write();
 		LOG_F( INFO, "e(4) = %f", cyield->GetBinError(4) / cyield->GetBinContent(4) );
 
 		cyield->Scale( 1.0/ ( 3.56e11 ) );
@@ -432,6 +455,10 @@ public:
 
 		gPad->SetLogy(1);
 		rp.next();
+
+		if ( config.get<float>( "p.RelativeEffShift", 1.0 ) != 1.0 ){
+			LOG_F( WARNING, "Shifting Eff by eff*=%f", config.get<float>( "p.RelativeEffShift", 1.0 ) );
+		}
 
 		book->clone( "cyield", "yratio" );
 		TH1 * yratio = book->get("yratio");

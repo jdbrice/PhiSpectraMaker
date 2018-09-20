@@ -3,20 +3,21 @@
 	<Task name="PhiFitter" type="PhiFitter" config="" nodePath="PhiFitter"  />
 	<sys>pp</sys>
 	<mod>DNN_N6</mod>
-	<name>DNN136</name>
-	<set>nominal</set>
+	<name>tra</name>
+	<set>nim</set>
 
 
 	<p>
 		<pt1>0.0</pt1>
 		<pt2>15.0</pt2>
+		<scalebw>false</scalebw>
 
 		<!-- phi or omega -->
 		<reso>phi</reso>
 		<rmls>false</rmls>
-		<fitRange min="0.85" max="1.5" />
+		<fitRange min="0.85" max="1.3" />
 
-		<showSlice>true</showSlice>
+		<showSlice>false</showSlice>
 		<bgNPol>4</bgNPol>
 		<!-- 1.0 = no shift -->
 		<!-- eff *= RelativeEffShift -->
@@ -29,10 +30,10 @@
 			<TFile url="phi-{sys}-{mod}-histograms-{name}.root" />
 		</input>
 		<output>
-			<TFile url="systematics/{set}-phi-fit-{sys}-{mod}-{name}.root" />
+			<TFile url="{set}-phi-fit-{sys}-{mod}-{name}.root" />
 			<!-- s-reso, s-name, f-slice1, f-slice2 -->
-			<FitReport url="systematics/{set}-%s-{sys}-%s_%0.2f_to_%0.2f.pdf" />
-			<YieldSummary url="systematics/{set}-yield-{p.reso}-{sys}.pdf" />
+			<FitReport url="{set}-%s-{sys}-%s_%0.2f_to_%0.2f.pdf" />
+			<YieldSummary url="{set}-yield-{p.reso}-{sys}.pdf" />
 		</output>
 
 		<histograms>
@@ -52,16 +53,16 @@
 	<bins>
 		<!-- USED To Rebin MASS before fitting -->
 		<mass min="0.2" max="1.8" width="0.01" />
-		<fit> 2.2, 3, 3.5, 4, 6</fit>
-		<!-- <fit> 2.2, 15</fit> -->
+		<!-- <fit> 2.2, 3, 3.5, 4, 6</fit> -->
+		<fit> 2.2, 15</fit>
 	</bins>
 
 	<style>
-		<mass xr="0.65, 1.2" min="0" xticks="505" draw="hpe" axis-digits="3" y-title=" dN/dM (GeV/c^{2})^{-1}" yto="1.2" marker-style="8" line-color="#000" marker-color="#000"/>
+		<mass xr="0.65, 1.2" min="0" xticks="505" draw="hpe" axis-digits="3" y-title=" dN/dM (GeV/c^{2})^{-1}" yto="1.3" marker-style="8" line-color="#000" marker-color="#000" max="400"/>
 		
-		<fit linewidth="2" line-color="#00F" />
-		<fitbg linewidth="2" line-color="#F00" />
-		<fitext line-width="2" line-style="2" line-color="#F00" />
+		<fit linewidth="3" line-color="#00F" />
+		<fitbg linewidth="3" line-color="#F00" />
+		<fitext line-width="3" line-style="2" line-color="#F00" />
 
 		<yield draw="hpe text" marker-size="5"  lc="#000" mc="#000" xr="0, 15"/>
 		<massfit draw="hpe"  min="1.0" max="1.03" lc="#000" mc="#000" />
