@@ -44,8 +44,8 @@
 			<Histo name="significance" title=";pairPid; significance" bins_x="bins.fit" />
 		</histograms>
 
-		<XmlHistogram name="mtdr_pt" url="efficiency-phi.root" />
-		<XmlHistogram name="gen_pt" url="efficiency-phi.root" />
+		<XmlHistogram name="mtdr_pt" url="efficiency-phi-1p1.root" />
+		<XmlHistogram name="gen_pt" url="efficiency-phi-1p1.root" />
 		<XmlHistogram name="TBW" url="Phi_TBW.root" />
 	</PhiFitter>
 

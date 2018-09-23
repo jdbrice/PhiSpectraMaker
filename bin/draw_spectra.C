@@ -7,7 +7,7 @@ void draw_spectra( ){
 	TFile *f = new TFile( "systematics/total_ratio_systematics.root" );
 	TFile *fTBW = new TFile( "/Users/jdb/bnl/work/dimuonAna/data/Cocktail/MTDMTD-phi_mumu.root" );
 	TFile *fy = new TFile( "nim-phi-fit-pp-DNN_N6-DNN136.root" );
-	// TFile *fy = new TFile( "nim-phi-womega-fit-pp-DNN_N6-DNN136_1p3.root" );
+	// TFile *fy = new TFile( "nim-phi-womega-fit-pp-DNN_N6-DNN136.root" );
 
 	TH1 *hnYield = (TH1*)fy->Get( "cyield" );
 
@@ -35,15 +35,16 @@ void draw_spectra( ){
 	double eysh[] = { hYieldSys->GetBinError( 1 ), hYieldSys->GetBinError( 2 ), hYieldSys->GetBinError( 3 ), hYieldSys->GetBinError( 4 ), (hYieldSys->GetBinError( 4 ) / hYieldSys->GetBinContent(4)) * hnYield->GetBinContent(5)  };
 
 
-	double  mtd_resp_sys[] = { (0.9-0.6021) * y[0], (0.9-.7783) * y[1], (0.9 - 0.8911) * y[2], 0, 0.05 * y[4] };
+	double  mtd_resp_sys[] = { (0.9-0.6021) * y[0], (0.9-.7783) * y[1], (0.9 - 0.8911) * y[2], 0, 0.1 * y[4] };
 
+	// Add in quadrature the additional uncertainty from MTD response uncertainty below pT=1.3 GeV/c
 	for ( int i = 0; i < 5; i++ ){
 		eysl[i] = sqrt( eysl[i]*eysl[i] + mtd_resp_sys[i]*mtd_resp_sys[i] );
 		eysh[i] = sqrt( eysh[i]*eysh[i] + mtd_resp_sys[i]*mtd_resp_sys[i] );
 	}
 
-	TGraphAsymmErrors *tgestat = new TGraphAsymmErrors( 5, x, y, exl, exh, eyl, eyh );
-	TGraphAsymmErrors *tgesys = new TGraphAsymmErrors( 5, x, y, exl, exh, eysl, eysh );
+	TGraphAsymmErrors *tgestat = new TGraphAsymmErrors( 4, x, y, exl, exh, eyl, eyh );
+	TGraphAsymmErrors *tgesys = new TGraphAsymmErrors( 4, x, y, exl, exh, eysl, eysh );
 
 
 	double Itarget = hTBWSys->Integral( hTBWSys->GetXaxis()->FindBin(2.2), hTBWSys->GetXaxis()->FindBin(3.0) ) * (hTBWSys->GetBinWidth(1) / hTBW->GetBinWidth(1)) ;
@@ -59,23 +60,28 @@ void draw_spectra( ){
 	can->SetLeftMargin( 0.13 );
 
 	hTBW->GetYaxis()->SetTitle( "BR #times #frac{d^{2}N}{dp_{T}dyp_{T} } #frac{1}{2#pi N_{events} }" );
+	hTBW->GetYaxis()->SetTitleSize( 18 / 360.0 );
+	hTBW->GetXaxis()->SetTitleSize( 18 / 360.0 );
 	hTBW->GetXaxis()->SetTitle( "p_{T} (GeV/c)" );
 	hTBW->SetMaximum( 1e-6 );
 	hTBW->SetMinimum( 1e-12 );
 	hTBW->GetXaxis()->SetRangeUser( 1.5, 8.0 );
 	hTBW->SetLineColor(kBlue);
 	hTBW->SetFillColorAlpha( kBlue, 0.4 );
+	hTBW->SetLineWidth( 3 );
 	hTBW->Draw("pE2");
 
 	tgestat->SetMarkerStyle( 29 );
-	tgestat->SetMarkerSize( 3 );
+	tgestat->SetMarkerSize( 5 );
 	tgestat->SetMarkerColor( kRed );
+	tgestat->SetLineWidth( 2 );
 	tgestat->Draw( "same p" );
 
 	tgesys->SetMarkerStyle( 29 );
 	tgesys->SetMarkerSize( 0.1 );
 	tgesys->SetFillColorAlpha( kRed, 0.6 );
 	tgesys->Draw( "same E2" );
+	tgesys->SetLineWidth( 2 );
 	can->SetLogy(1);
 
 	TLegend *leg= new TLegend( 0.5, 0.6, 0.97, 0.97 );
@@ -90,7 +96,7 @@ void draw_spectra( ){
 
 	can->SetLogy(1);
 	double bins[] = {2.2, 3.0, 3.5, 4.0, 6.0, 8.0};
-	TH1 * hratioFrame = new TH1F( "hratioFrame", ";p_{T} (GeV/c); Yield Ratio", 500, 1.5, 8.0 );
+	TH1 * hratioFrame = new TH1F( "hratioFrame", ";p_{T} (GeV/c); Yield Ratio: Measured / TBW", 500, 1.5, 8.0 );
 	
 	for ( int i = 20; i < 30; i++ ){
 		hratioFrame->SetBinContent( i, 1.0);
@@ -118,9 +124,15 @@ void draw_spectra( ){
 	hratioFrame->SetMaximum( 10 );
 	hratioFrame->SetFillColorAlpha(kGray+2, 0.9);
 	hratioFrame->SetLineColor(kGray+2);
+	hratioFrame->GetYaxis()->SetTitleSize( 18 / 360.0 );
+	hratioFrame->GetXaxis()->SetTitleSize( 20 / 360.0 );
 	hratioFrame->Draw( "E2");
 
-	tgestatRatio->Draw("same ")	;
+	tgestatRatio->SetMarkerStyle( 29 );
+	tgestatRatio->SetMarkerSize( 4 );
+	tgestatRatio->SetMarkerColor( kRed );
+	tgestatRatio->SetLineWidth( 2 );
+	tgestatRatio->Draw("same p")	;
 
 	TLine *l = new TLine( 1.5, 1.0, 8.0, 1.0 );
 	l->SetLineColor( kBlack );
@@ -129,7 +141,7 @@ void draw_spectra( ){
 	l->Draw("Same");
 	
 	tgesysRatio->SetMarkerStyle( 29 );
-	tgesysRatio->SetMarkerSize( 0.1 );
+	tgesysRatio->SetMarkerSize( 4 );
 	tgesysRatio->SetFillColorAlpha( kRed, 0.6 );
 	tgesysRatio->Draw( "same E2" );
 

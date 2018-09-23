@@ -144,6 +144,7 @@ public:
 			fitfunction->SetParLimits( 0, 0, 1e9 );
 			fitfunction->SetParLimits( 1, mu - 0.1, mu + 0.1);
 			fitfunction->SetParLimits( 2, 0.001, 0.06 );
+
 		} else if ( nullptr == fitfunction && "" != reso2Str ){
 			LOG_F( INFO, "PHI + OMEGA" );
 			fitfunction = new TF1( "phif", phi_and_omega_evaluate, 2, 5, 3 + 3 + npol );
@@ -168,6 +169,12 @@ public:
 				fitfunction->FixParameter( 1, 1.016 );
 				fitfunction->FixParameter( 2, 0.014 );
 			}
+		}
+
+		if ( pt2 > 6.0 ){
+			LOG_F( INFO, "Fixing Mu and Sigma" );
+			fitfunction->FixParameter( 1, 1.014 );
+			fitfunction->FixParameter( 2, 0.014 );
 		}
 
 		f = fitfunction;
@@ -209,7 +216,7 @@ public:
 		
 		float fmu  = f->GetParameter( 1 );
 		float fsig = f->GetParameter( 2 );
-		double Nse = f->IntegralError( fmu - 5*fsig, fmu + 5*fsig ) / bw ;
+		double Nse = f->IntegralError( fmu - 3*fsig, fmu + 3*fsig ) / bw ;
 		if ( 0.0f == Nse ){
 			hmassrb->Fit( f, "QR", "", fmin, fmax );
 			hmassrb->Fit( f, "R", "", fmin, fmax );
@@ -341,7 +348,7 @@ public:
 			mpt = pt1 + 1e-5;
 		if ( book->get( "yield" ) ){
 			int ibin = book->get("yield")->GetXaxis()->FindBin( mpt );
-			book->setBin( "yield", ibin, Ns, sqrt(Ns) );
+			book->setBin( "yield", ibin, Ns, Nse );
 		}
 		if ( book->get( "mass" ) ){
 			int ibin = book->get("mass")->GetXaxis()->FindBin( mpt );
