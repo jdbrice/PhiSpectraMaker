@@ -21,6 +21,15 @@ Double_t phi_evaluate(Double_t *x, Double_t *p){
 	return phi_fpol->Eval( x[0] ) + phi_fg1->Eval( x[0] );
 }
 
+Double_t phi_and_omega_evaluate(Double_t *x, Double_t *p){
+
+	phi_fg1->SetParameters( p[0], p[1], p[2] );
+	phi_fg2->SetParameters( p[3], p[4], p[5] );
+	phi_fpol->SetParameters( p[6], p[7], p[8], p[9], p[10], p[11] );
+
+	return phi_fpol->Eval( x[0] ) + phi_fg1->Eval( x[0] ) + phi_fg2->Eval( x[0] );
+}
+
 
 class PhiFitter : public HistoAnalyzer {
 protected:
@@ -61,6 +70,8 @@ public:
 		gStyle->SetOptStat(0);
 
 		string resoStr = config.get<string>( "p.reso", "phi" );
+		string reso2Str = config.get<string>( "p.reso2", "" );
+		LOG_F( INFO, "reso2Str=%s", reso2Str.c_str() );
 		const char * reso = resoStr.c_str();
 
 		const char * name = config.get<string>( "name", "" ).c_str();
@@ -123,15 +134,40 @@ public:
 		}
 
 		TF1 * f = nullptr;
-		if ( nullptr == fitfunction ){
+		if ( nullptr == fitfunction && "" == reso2Str ){
+			LOG_F( INFO, "PHI only" );
 			fitfunction = new TF1( "phif", phi_evaluate, 2, 5, 3 + npol );
 			fitfunction->SetParameters( 610, mu, 0.015, 1, -1, -1, 3, 2, -1 );
 
 			fitfunction->SetNpx( 500 );
 
-			// fitfunction->SetParLimits( 0, 0, 1e9 );
+			fitfunction->SetParLimits( 0, 0, 1e9 );
 			fitfunction->SetParLimits( 1, mu - 0.1, mu + 0.1);
 			fitfunction->SetParLimits( 2, 0.001, 0.06 );
+		} else if ( nullptr == fitfunction && "" != reso2Str ){
+			LOG_F( INFO, "PHI + OMEGA" );
+			fitfunction = new TF1( "phif", phi_and_omega_evaluate, 2, 5, 3 + 3 + npol );
+			fitfunction->SetParameters( 310, mu, 0.015, 610, 0.777, 0.017, 1, -1, -1, 3, 2 );
+			fitfunction->SetParameter( 11, -1 );
+
+			fitfunction->SetNpx( 500 );
+
+			fitfunction->SetParLimits( 0, 1, 1e3 );
+			fitfunction->SetParLimits( 1, mu - 0.051, mu + 0.051);
+			fitfunction->SetParLimits( 2, 0.001, 0.06 );
+
+			// fitfunction->SetParLimits( 3, 0, 1e9 );
+			fitfunction->SetParLimits( 4, 0.78 - 0.03, 0.78 + 0.01);
+			fitfunction->SetParLimits( 5, 0.001, 0.02 );
+
+			fitfunction->FixParameter( 4, 0.777 );
+			fitfunction->FixParameter( 5, 0.017 );
+
+			if ( "phi" == resoStr && config.get<bool>( "p.fixPhi" ) ){
+				LOG_F( INFO, "FIXING PHI params" );
+				fitfunction->FixParameter( 1, 1.016 );
+				fitfunction->FixParameter( 2, 0.014 );
+			}
 		}
 
 		f = fitfunction;
@@ -212,6 +248,14 @@ public:
 		
 		phi_fg1->Draw("same");
 
+
+		if ( "" != reso2Str ){
+			rpl.style( phi_fg2 ).set( config, "style.fit2" );
+			phi_fg2->SetNpx( 500 );
+			
+			phi_fg2->Draw("same");
+		}
+
 		phi_fpol->SetLineColor(kRed);
 		rpl.style( phi_fpol ).set( config, "style.fitbg" );
 		
@@ -228,6 +272,7 @@ public:
 		
 
 		// float bw = hmassrb->GetBinWidth( 5 );
+		cout << "Ns FIT: " << f->GetParameter( 0 ) << endl;
 		double Ns = f->Integral( fmu - 3*fsig, fmu + 3*fsig ) / bw;
 		double Nbg = phi_fpol->Integral( fmu - 3*fsig, fmu + 3*fsig ) / bw;
 
@@ -441,7 +486,8 @@ public:
 		LOG_F( INFO, "e(4) = %f", cyield->GetBinError(4) / cyield->GetBinContent(4) );
 
 		cyield->Scale( 1.0/ ( 3.56e11 ) );
-		cyield->Scale( (1.0/0.97) * ( 1.0 / 0.92 ) * (1.0 / 0.55) ); // missing efficiencys, will be formally added to eff
+		cyield->Scale( (1.0/0.97) * ( 1.0 / 0.84 ) * (1.0 / 0.55) ); // missing efficiencys, will be formally added to eff
+		// i think these were trigger, trigger unit, and the PID efficiency
 
 		LOG_F( INFO, "e(4) = %f", cyield->GetBinError(4) / cyield->GetBinContent(4) );
 		

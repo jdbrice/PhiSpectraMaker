@@ -3,7 +3,7 @@
 	<Task name="PhiFitter" type="PhiFitter" config="" nodePath="PhiFitter"  />
 	<sys>pp</sys>
 	<mod>DNN_N6</mod>
-	<name>DNN136</name>
+	<name>DNN136_1p3</name>
 	<set>nim</set>
 
 

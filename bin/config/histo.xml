@@ -3,7 +3,7 @@
 	<Task name="PhiMvaHistogram" type="PhiMvaHistogram" config="" nodePath="PhiMvaHistogram"  />
 	<sys>pp</sys>
 	<mod>DNN_N6</mod>
-	<name>DNN136</name>
+	<name>DNN136_1p3</name>
 
 	<p>
 		<pid>1.36</pid>
